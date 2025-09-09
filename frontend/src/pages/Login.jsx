@@ -1,14 +1,94 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
-  const [isForgot, setIsForgot] = useState(false); // ✅ Forgot Password toggle
+  const [isForgot, setIsForgot] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const [signInData, setSignInData] = useState({ email: "", password: "" });
+  const [signUpData, setSignUpData] = useState({
+    name: "",
+    email: "",
+    number: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const { login } = useAuth();
 
   const toggleForm = () => {
     setIsSignIn(!isSignIn);
-    setIsForgot(false); // reset forgot when switching
+    setIsForgot(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setSignUpData((p) => ({ ...p, [name]: value }));
+  };
+
+  // 🔹 SIGNUP
+  const handleUserSignUp = async (e) => {
+    e.preventDefault();
+    const { name, email, number, password, confirmPassword } = signUpData;
+    if (!name || !email || !number || !password || !confirmPassword) {
+      alert("Please fill all fields.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const endpoint = "http://localhost:5000/api/user/signup";
+      const response = await axios.post(endpoint, signUpData);
+
+      if (response.data?.token) {
+        login(response.data); // ✅ context update
+        navigate("/");
+      }
+      alert("User registered successfully!");
+    } catch (err) {
+      console.error("Error registering user:", err);
+      alert(
+        `Registration failed: ${err.response?.data?.message || err.message}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 SIGNIN
+  const handleUserSignIn = async (e) => {
+    e.preventDefault();
+    try {
+      const { email, password } = signInData;
+      if (!email || !password) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      const response = await axios.post(
+        "http://localhost:5000/api/user/login",
+        signInData
+      );
+
+      if (response.data?.token) {
+        login(response.data); // ✅ context update
+        navigate("/");
+      }
+      alert("Login successful!");
+    } catch (error) {
+      console.error("Error logging in:", error);
+      alert(`Login failed: ${error.response?.data?.message || error.message}`);
+    }
   };
 
   return (
@@ -19,7 +99,6 @@ export default function AuthPage() {
         transition={{ duration: 0.6 }}
         className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8"
       >
-        {/* Heading */}
         <h2 className="text-3xl font-bold text-center text-sky-600 mb-6">
           {isForgot
             ? "Reset Password 🔑"
@@ -28,10 +107,9 @@ export default function AuthPage() {
             : "Create Account ✨"}
         </h2>
 
-        {/* Forms */}
         <AnimatePresence mode="wait">
+          {/* 🔹 Forgot Password */}
           {isForgot ? (
-            // 🔹 Forgot Password Form
             <motion.form
               key="forgot"
               initial={{ opacity: 0, x: 40 }}
@@ -41,11 +119,12 @@ export default function AuthPage() {
               className="flex flex-col gap-4"
               onSubmit={(e) => {
                 e.preventDefault();
-                alert("📩 Password reset link sent (backend connect karo)");
+                alert("📩 Password reset link sent (implement backend)");
               }}
             >
               <input
                 type="email"
+                name="forgotEmail"
                 placeholder="Enter your registered Email"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-sky-400"
@@ -78,24 +157,28 @@ export default function AuthPage() {
               exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.4 }}
               className="flex flex-col gap-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("✅ Signed In (backend connect karo)");
-              }}
+              onSubmit={handleUserSignIn}
             >
               <input
                 type="email"
+                name="loginEmail"
                 placeholder="Email Address"
+                onChange={(e) =>
+                  setSignInData({ ...signInData, email: e.target.value })
+                }
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-sky-400"
               />
               <input
                 type="password"
+                name="loginPassword"
                 placeholder="Password"
+                onChange={(e) =>
+                  setSignInData({ ...signInData, password: e.target.value })
+                }
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-sky-400"
               />
-
               <div className="flex justify-between items-center text-sm">
                 <label className="flex items-center gap-2">
                   <input type="checkbox" className="w-4 h-4" /> Remember me
@@ -108,7 +191,6 @@ export default function AuthPage() {
                   Forgot Password?
                 </button>
               </div>
-
               <motion.button
                 type="submit"
                 whileHover={{ scale: 1.05 }}
@@ -127,25 +209,31 @@ export default function AuthPage() {
               exit={{ opacity: 0, x: 40 }}
               transition={{ duration: 0.4 }}
               className="flex flex-col gap-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert("✅ Signed Up (backend connect karo)");
-              }}
+              onSubmit={handleUserSignUp}
             >
               <input
                 type="text"
+                name="name"
+                value={signUpData.name}
+                onChange={handleChange}
                 placeholder="Full Name"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
               />
               <input
                 type="email"
+                name="email"
+                value={signUpData.email}
+                onChange={handleChange}
                 placeholder="Email Address"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
               />
               <input
                 type="tel"
+                name="number"
+                value={signUpData.number}
+                onChange={handleChange}
                 placeholder="Mobile Number"
                 pattern="[0-9]{10}"
                 required
@@ -153,12 +241,18 @@ export default function AuthPage() {
               />
               <input
                 type="password"
+                name="password"
+                value={signUpData.password}
+                onChange={handleChange}
                 placeholder="Password"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
               />
               <input
                 type="password"
+                name="confirmPassword"
+                value={signUpData.confirmPassword}
+                onChange={handleChange}
                 placeholder="Confirm Password"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
@@ -168,15 +262,15 @@ export default function AuthPage() {
                 type="submit"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-indigo-500 text-white py-2 rounded-lg shadow-md hover:bg-indigo-600 transition"
+                disabled={loading}
+                className="bg-indigo-500 text-white py-2 rounded-lg shadow-md hover:bg-indigo-600 transition disabled:opacity-60"
               >
-                Sign Up
+                {loading ? "Signing up..." : "Sign Up"}
               </motion.button>
             </motion.form>
           )}
         </AnimatePresence>
 
-        {/* Toggle Button */}
         {!isForgot && (
           <p className="text-sm text-gray-600 text-center mt-6">
             {isSignIn ? "Don’t have an account? " : "Already have an account? "}

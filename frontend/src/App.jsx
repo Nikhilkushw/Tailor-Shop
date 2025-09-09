@@ -14,22 +14,23 @@ export default function App() {
     <AuthProvider>
       <div className="min-h-screen flex flex-col">
         <Routes>
-          {/* Auth Page */}
+          {/* Public Route (Login Page) */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected Routes */}
+          {/* Protected Layout */}
           <Route
-            path="/*"
+            path="/"
             element={
               <PrivateRoute>
                 <div className="flex flex-col min-h-screen">
                   <Navbar />
                   <main className="flex-1">
+                    {/* 👇 Nested Protected Pages */}
                     <Routes>
                       <Route path="/" element={<Home />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/work" element={<Work />} />
-                      <Route path="/contact" element={<Contact />} />
+                      <Route path="about" element={<About />} />
+                      <Route path="work" element={<Work />} />
+                      <Route path="contact" element={<Contact />} />
                     </Routes>
                   </main>
                   <Footer />
