@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 export default function AuthPage() {
   const [isSignIn, setIsSignIn] = useState(true);
   const [isForgot, setIsForgot] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -91,6 +92,30 @@ export default function AuthPage() {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!forgotPasswordEmail) {
+      alert("Please enter your registered email.");
+      return;
+    }
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/user/forgot-password",
+        { email: forgotPasswordEmail }
+      );
+      if (response.data.ok) {
+        alert("Password reset link sent to your email.");
+        setIsForgot(false);
+      }
+    } catch (error) {
+      console.error("Error sending reset link:", error);
+      alert(
+        `Failed to send reset link: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-sky-100 to-indigo-100">
       <motion.div
@@ -119,13 +144,15 @@ export default function AuthPage() {
               className="flex flex-col gap-4"
               onSubmit={(e) => {
                 e.preventDefault();
-                alert("📩 Password reset link sent (implement backend)");
+                handleResetPassword();
               }}
             >
               <input
                 type="email"
                 name="forgotEmail"
+                value={forgotPasswordEmail}
                 placeholder="Enter your registered Email"
+                onChange={(e) => setForgotPasswordEmail(e.target.value)}
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-sky-400"
               />

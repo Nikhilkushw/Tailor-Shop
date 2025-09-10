@@ -6,39 +6,25 @@ import About from "./pages/About";
 import Work from "./pages/Work";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
-import PrivateRoute from "./components/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen flex flex-col">
-        <Routes>
-          {/* Public Route (Login Page) */}
-          <Route path="/login" element={<Login />} />
-
-          {/* Protected Layout */}
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <div className="flex flex-col min-h-screen">
-                  <Navbar />
-                  <main className="flex-1">
-                    {/* 👇 Nested Protected Pages */}
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="about" element={<About />} />
-                      <Route path="work" element={<Work />} />
-                      <Route path="contact" element={<Contact />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                </div>
-              </PrivateRoute>
-            }
-          />
-        </Routes>
+        {/* Layout सबके लिए common रहेगा */}
+        <Navbar />
+        <main className="flex-1">
+          <Routes>
+            {/* Public Pages */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/work" element={<Work />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+        </main>
+        <Footer />
       </div>
     </AuthProvider>
   );
