@@ -12,39 +12,51 @@ export default function Offers() {
   };
 
   return (
-    <section className="container py-12">
+    <section className="container py-16">
       {/* Heading */}
       <motion.h2
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="text-2xl md:text-3xl font-bold mb-6 text-gray-800"
+        className="text-3xl md:text-4xl font-bold mb-10 text-center bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent"
       >
-        Offers
+        Special Offers
       </motion.h2>
 
       {/* Offers Grid */}
       <motion.div
         initial="hidden"
         whileInView="visible"
-        transition={{ staggerChildren: 0.2 }}
+        transition={{ staggerChildren: 0.25 }}
         viewport={{ once: true }}
-        className="grid md:grid-cols-2 gap-6"
+        className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
       >
         {offers.map((o, i) => (
           <motion.div
             key={i}
             variants={fadeUp}
-            transition={{ duration: 0.1 }}
-            whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.1)" }}
-            className="p-6 rounded-2xl border bg-sky-50 cursor-pointer transition-transform"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="relative p-6 rounded-2xl border shadow-md bg-gradient-to-br from-pink-50 via-white to-purple-50 transition-all duration-500 hover:shadow-2xl hover:border-pink-400/60"
           >
-            <div className="text-lg font-semibold text-sky-700">{o.title}</div>
-            <p className="text-gray-700 mt-1">{o.desc}</p>
+            {/* Glow Border on hover */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-400 to-purple-500 opacity-0 hover:opacity-20 blur-2xl transition duration-500 pointer-events-none"></div>
+
+            {/* Offer Title */}
+            <div className="relative text-xl font-semibold text-purple-700">
+              {o.title}
+            </div>
+
+            {/* Description */}
+            <p className="relative text-gray-700 mt-2 leading-relaxed">
+              {o.desc}
+            </p>
+
+            {/* Valid Till Badge */}
             {o.valid && (
-              <p className="text-xs text-gray-500 mt-2">
-                Valid till: {o.valid}
+              <p className="relative inline-block mt-4 px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-md">
+                🎁 Valid till: {o.valid}
               </p>
             )}
           </motion.div>

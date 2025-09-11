@@ -1,20 +1,23 @@
 "use client";
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ AuthContext import
+import { Menu, X, Home, User, Briefcase, Phone } from "lucide-react";
+import { useAuth } from "../context/AuthContext"; 
+import DynamicNavigation from "../stylishComponents//DynamicNavigation"; // ✅ import
 
 export default function Navbar() {
-  const { user, logout } = useAuth(); // ✅ user & logout from context
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
-  const navClass = ({ isActive }) =>
-    isActive
-      ? "text-sky-600 font-semibold relative after:content-[''] after:block after:w-full after:h-[2px] after:bg-sky-600 after:scale-x-100 after:transition-transform after:duration-300"
-      : "text-gray-700 hover:text-sky-600 transition-colors duration-300 relative after:content-[''] after:block after:w-full after:h-[2px] after:bg-sky-600 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300";
+  // ✅ Nav links array for DynamicNavigation
+  const navLinks = [
+    { id: "home", label: "Home", href: "/", icon: <Home size={16} /> },
+    { id: "about", label: "About", href: "/about", icon: <User size={16} /> },
+    { id: "work", label: "Work", href: "/work", icon: <Briefcase size={16} /> },
+    { id: "contact", label: "Contact", href: "/contact", icon: <Phone size={16} /> },
+  ];
 
   return (
     <header className="border-b bg-white sticky top-0 z-50 shadow-sm">
@@ -29,13 +32,18 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6 text-lg">
-          <NavLink to="/" className={navClass}>Home</NavLink>
-          <NavLink to="/about" className={navClass}>About</NavLink>
-          <NavLink to="/work" className={navClass}>Work</NavLink>
-          <NavLink to="/contact" className={navClass}>Contact</NavLink>
-        </nav>
+        {/* Desktop Nav with DynamicNavigation */}
+        <div className="hidden md:block">
+          <DynamicNavigation
+            links={navLinks}
+            backgroundColor="#ffffff"
+            textColor="#1e293b"
+            highlightColor="#0ea5e9"
+            glowIntensity={4}
+            enableRipple
+            onLinkClick={(id) => navigate(navLinks.find(l => l.id === id)?.href || "/")}
+          />
+        </div>
 
         {/* Right Side Buttons */}
         <div className="flex items-center gap-3">
@@ -88,7 +96,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Nav */}
+      {/* Mobile Nav (fallback without DynamicNavigation) */}
       {isOpen && (
         <motion.nav
           initial={{ y: -20, opacity: 0 }}
@@ -96,10 +104,18 @@ export default function Navbar() {
           transition={{ duration: 0.4 }}
           className="md:hidden bg-white border-t shadow-md px-6 py-4 flex flex-col gap-4"
         >
-          <NavLink to="/" className={navClass} onClick={() => setIsOpen(false)}>Home</NavLink>
-          <NavLink to="/about" className={navClass} onClick={() => setIsOpen(false)}>About</NavLink>
-          <NavLink to="/work" className={navClass} onClick={() => setIsOpen(false)}>Work</NavLink>
-          <NavLink to="/contact" className={navClass} onClick={() => setIsOpen(false)}>Contact</NavLink>
+          {navLinks.map((link) => (
+            <button
+              key={link.id}
+              onClick={() => {
+                navigate(link.href);
+                setIsOpen(false);
+              }}
+              className="text-gray-700 hover:text-sky-600 text-left transition-colors duration-300"
+            >
+              {link.label}
+            </button>
+          ))}
         </motion.nav>
       )}
     </header>

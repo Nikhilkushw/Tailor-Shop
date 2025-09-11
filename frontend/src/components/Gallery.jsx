@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import works from "../data/works";
+import { Lens } from "../stylishComponents/lens";
 
 export default function Gallery({ limit }) {
   const [selectedImg, setSelectedImg] = useState(null);
@@ -34,18 +35,22 @@ export default function Gallery({ limit }) {
               transition={{ duration: 0.4 }}
               className="relative"
             >
-              <img
-                src={selectedImg}
-                alt="large view"
-                className="max-w-[90vw] max-h-[80vh] rounded-lg shadow-xl"
-              />
-              {/* Close Button */}
+              {/* Close Button 👇 always above Lens */}
               <button
                 onClick={() => setSelectedImg(null)}
-                className="absolute top-2 right-2 bg-white text-black px-3 py-1 rounded-full shadow hover:bg-gray-200 transition"
+                className="absolute -top-10 right-0 bg-white text-black px-3 py-1 rounded-full shadow hover:bg-gray-200 transition z-50"
               >
                 ✕
               </button>
+
+              {/* Lens effect image */}
+              <Lens zoomFactor={2} lensSize={200} blurEdge maskShape="circle">
+                <img
+                  src={selectedImg}
+                  alt="large view"
+                  className="max-w-[90vw] max-h-[80vh] rounded-lg shadow-xl object-contain"
+                />
+              </Lens>
             </motion.div>
           </motion.div>
         )}
