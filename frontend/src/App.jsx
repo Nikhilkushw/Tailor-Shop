@@ -6,6 +6,7 @@ import About from "./pages/About";
 import Work from "./pages/Work";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
+import PasswordReset from "./pages/PasswordReset";
 import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
             <Route path="/work" element={<Work />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password/:token" element={<PasswordReset />} />
           </Routes>
         </main>
         <Footer />
