@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X, Home, User, Briefcase, Phone } from "lucide-react";
-import { useAuth } from "../context/AuthContext"; 
-import DynamicNavigation from "../stylishComponents//DynamicNavigation"; // ✅ import
+import { useAuth } from "../context/AuthContext";
+import DynamicNavigation from "../stylishComponents/DynamicNavigation"; // ✅ import
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -41,7 +41,9 @@ export default function Navbar() {
             highlightColor="#0ea5e9"
             glowIntensity={4}
             enableRipple
-            onLinkClick={(id) => navigate(navLinks.find(l => l.id === id)?.href || "/")}
+            onLinkClick={(id) =>
+              navigate(navLinks.find((l) => l.id === id)?.href || "/")
+            }
           />
         </div>
 
@@ -71,20 +73,31 @@ export default function Navbar() {
             </motion.button>
           )}
 
-          {/* Call Now Button */}
-          <motion.a
-            href="tel:8305310168"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={(e) => {
-              if (!window.confirm("📞 Do you want to call 8305310168?")) {
-                e.preventDefault();
-              }
-            }}
-            className="px-4 py-2 rounded-lg bg-sky-500 text-white font-medium shadow-md transition-colors hover:bg-sky-600"
-          >
-            Call Now
-          </motion.a>
+          {/* ✅ Conditional: Admin ya Normal User */}
+          {user?.role === "admin" ? (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/admin-dashboard")}
+              className="px-4 py-2 rounded-lg bg-purple-500 text-white font-medium shadow-md transition-colors hover:bg-purple-600"
+            >
+              Admin
+            </motion.button>
+          ) : (
+            <motion.a
+              href="tel:8305310168"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={(e) => {
+                if (!window.confirm("📞 Do you want to call 8305310168?")) {
+                  e.preventDefault();
+                }
+              }}
+              className="px-4 py-2 rounded-lg bg-sky-500 text-white font-medium shadow-md transition-colors hover:bg-sky-600"
+            >
+              Call Now
+            </motion.a>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -116,6 +129,32 @@ export default function Navbar() {
               {link.label}
             </button>
           ))}
+
+          {/* ✅ Mobile Admin / Call Button */}
+          {user?.role === "admin" ? (
+            <button
+              onClick={() => {
+                navigate("/admin-dashboard");
+                setIsOpen(false);
+              }}
+              className="text-purple-600 font-medium hover:underline text-left"
+            >
+              Admin Dashboard
+            </button>
+          ) : (
+            <a
+              href="tel:8305310168"
+              onClick={(e) => {
+                if (!window.confirm("📞 Do you want to call 8305310168?")) {
+                  e.preventDefault();
+                }
+                setIsOpen(false);
+              }}
+              className="text-sky-600 font-medium hover:underline text-left"
+            >
+              Call Now
+            </a>
+          )}
         </motion.nav>
       )}
     </header>

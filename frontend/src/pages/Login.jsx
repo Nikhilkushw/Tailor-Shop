@@ -48,12 +48,14 @@ export default function AuthPage() {
 
     try {
       setLoading(true);
-      const endpoint = "http://localhost:5000/api/user/signup";
-      const response = await axios.post(endpoint, signUpData);
+      const response = await axios.post(
+        "http://localhost:5000/api/user/signup",
+        signUpData
+      );
 
       if (response.data?.token) {
-        login(response.data); // ✅ context update
-        navigate("/");
+        login(response.data);
+        navigate("/"); // Normal user
       }
       alert("User registered successfully!");
     } catch (err) {
@@ -82,8 +84,14 @@ export default function AuthPage() {
       );
 
       if (response.data?.token) {
-        login(response.data); // ✅ context update
-        navigate("/");
+        login(response.data);
+
+        // Role-based redirect
+        if (response.data.user.role === "admin") {
+          navigate("/");
+        } else {
+          navigate("/");
+        }
       }
       alert("Login successful!");
     } catch (error) {
@@ -284,7 +292,6 @@ export default function AuthPage() {
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
               />
-
               <motion.button
                 type="submit"
                 whileHover={{ scale: 1.05 }}

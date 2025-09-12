@@ -8,12 +8,17 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import PasswordReset from "./pages/PasswordReset";
 import { AuthProvider } from "./context/AuthContext";
+import UpdateImages from "../src/adminPage/UpdateImages";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminServices from "./components/AdminServices";
+import AdminOffers from "./components/AdminOffers";
+import AdminWorkImages from "./components/AdminWorkImages";
 
 export default function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen flex flex-col">
-        {/* Layout सबके लिए common रहेगा */}
         <Navbar />
         <main className="flex-1">
           <Routes>
@@ -24,6 +29,15 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password/:token" element={<PasswordReset />} />
+
+            {/* Admin Protected Pages */}
+            <Route element={<ProtectedRoute role="admin" />}>
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/services" element={<AdminServices />} />
+              <Route path="/offers" element={<AdminOffers />} />
+              <Route path="/work-images" element={<AdminWorkImages />} />
+
+            </Route>
           </Routes>
         </main>
         <Footer />

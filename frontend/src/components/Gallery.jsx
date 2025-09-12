@@ -1,11 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import works from "../data/works";
 import { Lens } from "../stylishComponents/lens";
+import axios from "axios";
 
 export default function Gallery({ limit }) {
   const [selectedImg, setSelectedImg] = useState(null);
   const items = limit ? works.slice(0, limit) : works;
+
+  const fetchGalleryData = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/cloth/gallery", {
+        params: { type: "Pant" }, // send as query param
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching gallery data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGalleryData();
+  }, []);
 
   return (
     <section className="container py-12">
