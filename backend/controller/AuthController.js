@@ -1,5 +1,6 @@
 import User from "../model/User.js";
 import { genSalt, hash, compare } from "bcryptjs";
+import { sign } from "crypto";
 import jwt from "jsonwebtoken";
 
 export const signup = async (req, res) => {
@@ -33,7 +34,7 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    const token = sign(
+    const token = jwt.sign(
       { id: user._id, role: user.role }, // include role if available
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
@@ -60,9 +61,7 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and Password are required" });
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
     const user = await User.findOne({ email });
@@ -75,8 +74,9 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // Generate JWT with role included
     const token = jwt.sign(
-      { id: user._id, role: user.role }, // include role
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -88,6 +88,7 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         number: user.number,
+        role: user.role, // role send kar rahe hain frontend ke liye
       },
       token,
     });
@@ -96,3 +97,4 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
