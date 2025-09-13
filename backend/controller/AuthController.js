@@ -98,3 +98,46 @@ export const login = async (req, res) => {
   }
 };
 
+// ✅ Get all users
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching users", error: err });
+  }
+};
+
+// ✅ Create new user
+export const createUser = async (req, res) => {
+  try {
+    const { name, email, number, password, role } = req.body;
+    const user = new User({ name, email, number, password, role });
+    await user.save();
+    res.status(201).json(user);
+  } catch (err) {
+    res.status(400).json({ message: "Error creating user", error: err });
+  }
+};
+
+// ✅ Update user
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ message: "Error updating user", error: err });
+  }
+};
+
+// ✅ Delete user
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await User.findByIdAndDelete(id);
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(400).json({ message: "Error deleting user", error: err });
+  }
+};

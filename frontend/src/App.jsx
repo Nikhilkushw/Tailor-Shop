@@ -8,12 +8,12 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import PasswordReset from "./pages/PasswordReset";
 import { AuthProvider } from "./context/AuthContext";
-import UpdateImages from "../src/adminPage/UpdateImages";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminServices from "./components/AdminServices";
 import AdminOffers from "./components/AdminOffers";
 import AdminWorkImages from "./components/AdminWorkImages";
+import AdminPanel from "./components/AdminPanel";
 
 export default function App() {
   return (
@@ -36,7 +36,7 @@ export default function App() {
               <Route path="/services" element={<AdminServices />} />
               <Route path="/offers" element={<AdminOffers />} />
               <Route path="/work-images" element={<AdminWorkImages />} />
-
+              <Route path="/admin-panel" element={<AdminPanel />} />
             </Route>
           </Routes>
         </main>

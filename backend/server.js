@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import path from "path";
 import connectDB from "./config/db.js";
 import userRouter from "./route/user.route.js";
-import clothRouter from "./route/cloth.route.js";
 import transporter from "./config/email.js";
 import serviceRouter from "./route/service.route.js";
 import offerRoutes from "./route/offer.model.js";
@@ -55,7 +54,6 @@ You have received a new enquiry:
 
 // ✅ Routes
 app.use("/api/user", userRouter);
-app.use("/api/cloth", clothRouter);
 app.use("/api/services", serviceRouter)
 app.use("/api/offers", offerRoutes);
 app.use("/api/work-images", workImageRoutes);

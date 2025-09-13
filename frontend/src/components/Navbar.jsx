@@ -16,7 +16,12 @@ export default function Navbar() {
     { id: "home", label: "Home", href: "/", icon: <Home size={16} /> },
     { id: "about", label: "About", href: "/about", icon: <User size={16} /> },
     { id: "work", label: "Work", href: "/work", icon: <Briefcase size={16} /> },
-    { id: "contact", label: "Contact", href: "/contact", icon: <Phone size={16} /> },
+    {
+      id: "contact",
+      label: "Contact",
+      href: "/contact",
+      icon: <Phone size={16} />,
+    },
   ];
 
   return (
@@ -75,14 +80,24 @@ export default function Navbar() {
 
           {/* ✅ Conditional: Admin ya Normal User */}
           {user?.role === "admin" ? (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/admin-dashboard")}
-              className="px-4 py-2 rounded-lg bg-purple-500 text-white font-medium shadow-md transition-colors hover:bg-purple-600"
-            >
-              Admin
-            </motion.button>
+            <div className="flex gap-2">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/admin-dashboard")}
+                className="px-4 py-2 rounded-lg bg-purple-500 text-white font-medium shadow-md transition-colors hover:bg-purple-600"
+              >
+                Admin
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/admin-panel")}
+                className="px-4 py-2 rounded-lg bg-purple-500 text-white font-medium shadow-md transition-colors hover:bg-purple-600"
+              >
+                Edit Users
+              </motion.button>
+            </div>
           ) : (
             <motion.a
               href="tel:8305310168"
