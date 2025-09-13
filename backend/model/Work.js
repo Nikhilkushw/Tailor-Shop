@@ -1,19 +1,15 @@
 import mongoose from "mongoose";
 
 const itemSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  image: { type: String, required: true }, // Store image URL/path
+  title: String,
+  description: String,
+  image: String, // path for uploaded image
 });
 
-const workImageSchema = new mongoose.Schema(
-  {
-    type: { type: String, required: true },
-    sampleImage: { type: String, required: true }, // Store image URL/path
-    items: [itemSchema],
-  },
-  { timestamps: true }
-);
+const workSchema = new mongoose.Schema({
+  type: { type: String, required: true },
+  sampleImage: String,
+  items: [itemSchema],
+});
 
-const WorkImage = mongoose.model("WorkImage", workImageSchema);
-export default WorkImage;
+export default mongoose.model("Work", workSchema);

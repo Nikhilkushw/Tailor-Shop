@@ -14,6 +14,7 @@ import AdminServices from "./components/AdminServices";
 import AdminOffers from "./components/AdminOffers";
 import AdminWorkImages from "./components/AdminWorkImages";
 import AdminPanel from "./components/AdminPanel";
+import SelectedType from "./components/SelectedType";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/work" element={<Work />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/selected-type" element={<SelectedType />} />
             <Route path="/reset-password/:token" element={<PasswordReset />} />
 
             {/* Admin Protected Pages */}

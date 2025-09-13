@@ -1,229 +1,226 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const API = "http://localhost:5000/api/work-images";
+
 const AdminWorkImages = () => {
   const [works, setWorks] = useState([]);
-  const [formData, setFormData] = useState({
-    type: "",
-    sampleImage: null,
-    samplePreview: null, // 👈 local preview ke liye
-    items: [{ title: "", description: "", image: null, preview: null }],
-  });
-  const [editingId, setEditingId] = useState(null);
+  const [newWork, setNewWork] = useState({ type: "", sampleImage: null });
 
-  // Fetch all works from backend
-  const fetchWorks = () => {
-    axios
-      .get("http://localhost:5000/api/work-images")
-      .then((res) => setWorks(res.data))
-      .catch((err) => console.error(err));
+  const [newItem, setNewItem] = useState({ title: "", description: "", image: null });
+  const [editItemData, setEditItemData] = useState(null);
+
+  // ✅ Fetch works
+  const fetchWorks = async () => {
+    const res = await axios.get(API);
+    setWorks(res.data);
   };
 
   useEffect(() => {
     fetchWorks();
   }, []);
 
-  // Handle text or file input change
-  const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file") {
-      const file = files[0];
-      setFormData({
-        ...formData,
-        [name]: file,
-        samplePreview: file ? URL.createObjectURL(file) : null,
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
-
-  // Handle items inside form
-  const handleItemChange = (index, e) => {
-    const { name, value, type, files } = e.target;
-    const newItems = [...formData.items];
-    if (type === "file") {
-      const file = files[0];
-      newItems[index][name] = file;
-      newItems[index].preview = file ? URL.createObjectURL(file) : null; // 👈 preview add
-    } else {
-      newItems[index][name] = value;
-    }
-    setFormData({ ...formData, items: newItems });
-  };
-
-  // Add new item
-  const addItem = () => {
-    setFormData({
-      ...formData,
-      items: [...formData.items, { title: "", description: "", image: null, preview: null }],
-    });
-  };
-
-  // Remove item
-  const removeItem = (index) => {
-    const newItems = [...formData.items];
-    newItems.splice(index, 1);
-    setFormData({ ...formData, items: newItems });
-  };
-
-  // Submit form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // ✅ Create work
+  const handleAddWork = async () => {
     const data = new FormData();
-    data.append(
-      "data",
-      JSON.stringify({
-        type: formData.type,
-        items: formData.items.map((i) => ({ title: i.title, description: i.description })),
-      })
-    );
-    if (formData.sampleImage) data.append("sampleImage", formData.sampleImage);
-    formData.items.forEach((item, i) => {
-      if (item.image) data.append(`items`, item.image);
-    });
+    data.append("type", newWork.type);
+    if (newWork.sampleImage) data.append("sampleImage", newWork.sampleImage);
 
-    try {
-      if (editingId) {
-        await axios.put(`http://localhost:5000/api/work-images/${editingId}`, data);
-        setEditingId(null);
-      } else {
-        await axios.post("http://localhost:5000/api/work-images", data);
-      }
-      setFormData({
-        type: "",
-        sampleImage: null,
-        samplePreview: null,
-        items: [{ title: "", description: "", image: null, preview: null }],
-      });
-      fetchWorks();
-    } catch (err) {
-      console.error(err);
-    }
+    await axios.post(API, data);
+    setNewWork({ type: "", sampleImage: null });
+    fetchWorks();
   };
 
-  // Edit work
-  const handleEdit = (work) => {
-    setFormData({
-      type: work.type,
-      sampleImage: null,
-      samplePreview: work.sampleImage ? `http://localhost:5000/${work.sampleImage}` : null,
-      items: work.items.map((i) => ({
-        title: i.title,
-        description: i.description,
-        image: null,
-        preview: i.image ? `http://localhost:5000/${i.image}` : null,
-      })),
-    });
-    setEditingId(work._id);
-  };
-
-  // Delete work
+  // ✅ Delete work
   const handleDeleteWork = async (id) => {
-    await axios.delete(`http://localhost:5000/api/work-images/${id}`);
+    await axios.delete(`${API}/${id}`);
+    fetchWorks();
+  };
+
+  // ✅ Add item
+  const handleAddItem = async (workId) => {
+    const data = new FormData();
+    data.append("title", newItem.title);
+    data.append("description", newItem.description);
+    if (newItem.image) data.append("image", newItem.image);
+
+    await axios.post(`${API}/${workId}/items`, data);
+    setNewItem({ title: "", description: "", image: null });
+    fetchWorks();
+  };
+
+  // ✅ Edit item
+  const handleEditItem = async (workId) => {
+    const data = new FormData();
+    data.append("title", editItemData.title);
+    data.append("description", editItemData.description);
+    if (editItemData.image) data.append("image", editItemData.image);
+
+    await axios.put(`${API}/${workId}/items/${editItemData._id}`, data);
+    setEditItemData(null);
+    fetchWorks();
+  };
+
+  // ✅ Delete item
+  const handleDeleteItem = async (workId, itemId) => {
+    await axios.delete(`${API}/${workId}/items/${itemId}`);
     fetchWorks();
   };
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">Admin Work Images</h1>
+      <h2 className="text-xl font-bold mb-4">Admin Work Images</h2>
 
-      <form onSubmit={handleSubmit} className="p-4 border rounded-lg shadow mb-6 space-y-4">
+      {/* Add Work */}
+      <div className="mb-6 p-4 border rounded bg-gray-50">
+        <h3 className="font-semibold mb-2">Add New Work</h3>
         <input
           type="text"
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
           placeholder="Type"
-          className="w-full border p-2 rounded"
-          required
+          value={newWork.type}
+          onChange={(e) => setNewWork({ ...newWork, type: e.target.value })}
+          className="border p-2 mr-2"
         />
-        <input type="file" name="sampleImage" onChange={handleChange} className="w-full border p-2 rounded" />
-        {/* 👇 Local ya backend image preview */}
-        {formData.samplePreview && (
-          <img src={formData.samplePreview} alt="preview" className="w-40 h-28 object-cover rounded mt-2" />
-        )}
+        <input
+          type="file"
+          onChange={(e) =>
+            setNewWork({ ...newWork, sampleImage: e.target.files[0] })
+          }
+        />
+        <button
+          onClick={handleAddWork}
+          className="ml-2 bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Add Work
+        </button>
+      </div>
 
-        <h3 className="text-lg font-semibold">Items</h3>
-        {formData.items.map((item, index) => (
-          <div key={index} className="border p-2 rounded mb-2">
+      {/* Work List */}
+      {works.map((work) => (
+        <div key={work._id} className="p-4 mb-6 border rounded bg-white">
+          <h3 className="font-bold">{work.type}</h3>
+          {work.sampleImage && (
+            <img
+              src={`http://localhost:5000/${work.sampleImage}`}
+              alt="sample"
+              className="w-32 h-32 object-cover my-2"
+            />
+          )}
+          <button
+            onClick={() => handleDeleteWork(work._id)}
+            className="bg-red-500 text-white px-3 py-1 rounded mb-4"
+          >
+            Delete Work
+          </button>
+
+          {/* Add Item */}
+          <div className="mt-4">
+            <h4 className="font-semibold">Add Item</h4>
             <input
               type="text"
-              name="title"
-              value={item.title}
-              onChange={(e) => handleItemChange(index, e)}
               placeholder="Title"
-              className="w-full border p-2 rounded mb-2"
-              required
+              value={newItem.title}
+              onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+              className="border p-1 mr-2"
             />
             <input
               type="text"
-              name="description"
-              value={item.description}
-              onChange={(e) => handleItemChange(index, e)}
               placeholder="Description"
-              className="w-full border p-2 rounded mb-2"
-              required
+              value={newItem.description}
+              onChange={(e) =>
+                setNewItem({ ...newItem, description: e.target.value })
+              }
+              className="border p-1 mr-2"
             />
-            <input type="file" name="image" onChange={(e) => handleItemChange(index, e)} className="w-full border p-2 rounded mb-2" />
-            {/* 👇 Local ya backend image preview */}
-            {item.preview && (
-              <img src={item.preview} alt="preview" className="w-32 h-24 object-cover rounded mt-1" />
-            )}
-            <button type="button" onClick={() => removeItem(index)} className="bg-red-500 text-white px-3 py-1 rounded mt-2">
-              Remove Item
+            <input
+              type="file"
+              onChange={(e) =>
+                setNewItem({ ...newItem, image: e.target.files[0] })
+              }
+            />
+            <button
+              onClick={() => handleAddItem(work._id)}
+              className="ml-2 bg-green-500 text-white px-3 py-1 rounded"
+            >
+              Add Item
             </button>
           </div>
-        ))}
 
-        <button type="button" onClick={addItem} className="bg-green-500 text-white px-3 py-1 rounded">
-          Add Item
-        </button>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded block mt-4">
-          {editingId ? "Update Work" : "Save Work"}
-        </button>
-      </form>
-
-      {/* Show all saved works */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {works.map((work) => (
-          <div key={work._id} className="p-4 border rounded shadow space-y-2 bg-gray-50">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">{work.type}</h2>
-              <div>
-                <button onClick={() => handleEdit(work)} className="bg-yellow-500 text-white px-3 py-1 rounded mr-2">
-                  Edit
-                </button>
-                <button onClick={() => handleDeleteWork(work._id)} className="bg-red-500 text-white px-3 py-1 rounded">
-                  Delete Work
-                </button>
-              </div>
-            </div>
-            {work.sampleImage && (
-              <img
-                src={`http://localhost:5000/${work.sampleImage}`}
-                alt={work.type}
-                className="w-full h-40 object-cover rounded"
-              />
-            )}
-            <div>
-              {work.items.map((item, i) => (
-                <div key={i} className="p-2 border rounded mb-2 bg-white">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <p>{item.description}</p>
-                  {item.image && (
-                    <img
-                      src={`http://localhost:5000/${item.image}`}
-                      alt={item.title}
-                      className="w-full h-32 object-cover rounded"
+          {/* Items List */}
+          <div className="mt-4">
+            <h4 className="font-semibold mb-2">Items</h4>
+            {work.items.map((item) => (
+              <div key={item._id} className="p-2 border mb-2 rounded">
+                {editItemData && editItemData._id === item._id ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editItemData.title}
+                      onChange={(e) =>
+                        setEditItemData({
+                          ...editItemData,
+                          title: e.target.value,
+                        })
+                      }
+                      className="border p-1 mr-2"
                     />
-                  )}
-                </div>
-              ))}
-            </div>
+                    <input
+                      type="text"
+                      value={editItemData.description}
+                      onChange={(e) =>
+                        setEditItemData({
+                          ...editItemData,
+                          description: e.target.value,
+                        })
+                      }
+                      className="border p-1 mr-2"
+                    />
+                    <input
+                      type="file"
+                      onChange={(e) =>
+                        setEditItemData({
+                          ...editItemData,
+                          image: e.target.files[0],
+                        })
+                      }
+                    />
+                    <button
+                      onClick={() => handleEditItem(work._id)}
+                      className="ml-2 bg-blue-500 text-white px-3 py-1 rounded"
+                    >
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h5 className="font-semibold">{item.title}</h5>
+                    <p>{item.description}</p>
+                    {item.image && (
+                      <img
+                        src={`http://localhost:5000/${item.image}`}
+                        alt={item.title}
+                        className="w-32 h-32 object-cover my-2"
+                      />
+                    )}
+                    <button
+                      onClick={() => setEditItemData(item)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem(work._id, item._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 };
