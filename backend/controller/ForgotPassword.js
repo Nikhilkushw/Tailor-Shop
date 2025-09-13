@@ -1,6 +1,6 @@
 import User from "../model/User.js";
 import { randomBytes } from "crypto";
-import { genSalt, hash } from "bcrypt";
+import { genSalt, hash } from "bcryptjs";
 import { sendEmail } from "../config/email.js";
 
 // Forgot Password (send email)
