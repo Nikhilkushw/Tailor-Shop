@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function AuthPage() {
+const AuthPage = () => {
   const [isSignIn, setIsSignIn] = useState(true);
   const [isForgot, setIsForgot] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
@@ -22,15 +22,17 @@ export default function AuthPage() {
   });
 
   const { login } = useAuth();
+  const API_URL = "https://tailor-shop-a5mn.onrender.com/api/user";
+
+  // 🔹 Universal input handler
+  const handleInputChange = (e, setState) => {
+    const { name, value } = e.target;
+    setState((prev) => ({ ...prev, [name]: value }));
+  };
 
   const toggleForm = () => {
     setIsSignIn(!isSignIn);
     setIsForgot(false);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSignUpData((p) => ({ ...p, [name]: value }));
   };
 
   // 🔹 SIGNUP
@@ -48,10 +50,7 @@ export default function AuthPage() {
 
     try {
       setLoading(true);
-      const response = await axios.post(
-        "http://localhost:5000/api/user/signup",
-        signUpData
-      );
+      const response = await axios.post(`${API_URL}/signup`, signUpData);
 
       if (response.data?.token) {
         login(response.data);
@@ -78,17 +77,14 @@ export default function AuthPage() {
         return;
       }
 
-      const response = await axios.post(
-        "http://localhost:5000/api/user/login",
-        signInData
-      );
+      const response = await axios.post(`${API_URL}/login`, signInData);
 
       if (response.data?.token) {
         login(response.data);
 
         // Role-based redirect
         if (response.data.user.role === "admin") {
-          navigate("/");
+          navigate("/admin");
         } else {
           navigate("/");
         }
@@ -100,17 +96,17 @@ export default function AuthPage() {
     }
   };
 
+  // 🔹 RESET PASSWORD
   const handleResetPassword = async () => {
     if (!forgotPasswordEmail) {
       alert("Please enter your registered email.");
       return;
     }
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/user/forgot-password",
-        { email: forgotPasswordEmail }
-      );
-      if (response.data.ok) {
+      const response = await axios.post(`${API_URL}/forgot-password`, {
+        email: forgotPasswordEmail,
+      });
+      if (response.data?.ok || response.data?.success) {
         alert("Password reset link sent to your email.");
         setIsForgot(false);
       }
@@ -196,21 +192,19 @@ export default function AuthPage() {
             >
               <input
                 type="email"
-                name="loginEmail"
+                name="email"
                 placeholder="Email Address"
-                onChange={(e) =>
-                  setSignInData({ ...signInData, email: e.target.value })
-                }
+                value={signInData.email}
+                onChange={(e) => handleInputChange(e, setSignInData)}
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-sky-400"
               />
               <input
                 type="password"
-                name="loginPassword"
+                name="password"
                 placeholder="Password"
-                onChange={(e) =>
-                  setSignInData({ ...signInData, password: e.target.value })
-                }
+                value={signInData.password}
+                onChange={(e) => handleInputChange(e, setSignInData)}
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-sky-400"
               />
@@ -250,7 +244,7 @@ export default function AuthPage() {
                 type="text"
                 name="name"
                 value={signUpData.name}
-                onChange={handleChange}
+                onChange={(e) => handleInputChange(e, setSignUpData)}
                 placeholder="Full Name"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
@@ -259,7 +253,7 @@ export default function AuthPage() {
                 type="email"
                 name="email"
                 value={signUpData.email}
-                onChange={handleChange}
+                onChange={(e) => handleInputChange(e, setSignUpData)}
                 placeholder="Email Address"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
@@ -268,7 +262,7 @@ export default function AuthPage() {
                 type="tel"
                 name="number"
                 value={signUpData.number}
-                onChange={handleChange}
+                onChange={(e) => handleInputChange(e, setSignUpData)}
                 placeholder="Mobile Number"
                 pattern="[0-9]{10}"
                 required
@@ -278,7 +272,7 @@ export default function AuthPage() {
                 type="password"
                 name="password"
                 value={signUpData.password}
-                onChange={handleChange}
+                onChange={(e) => handleInputChange(e, setSignUpData)}
                 placeholder="Password"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
@@ -287,7 +281,7 @@ export default function AuthPage() {
                 type="password"
                 name="confirmPassword"
                 value={signUpData.confirmPassword}
-                onChange={handleChange}
+                onChange={(e) => handleInputChange(e, setSignUpData)}
                 placeholder="Confirm Password"
                 required
                 className="border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400"
@@ -319,4 +313,6 @@ export default function AuthPage() {
       </motion.div>
     </div>
   );
-}
+};
+
+export default AuthPage;

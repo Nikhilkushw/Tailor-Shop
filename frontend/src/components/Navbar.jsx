@@ -6,7 +6,7 @@ import { Menu, X, Home, User, Briefcase, Phone } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import DynamicNavigation from "../stylishComponents/DynamicNavigation"; // ✅ import
 
-export default function Navbar() {
+const Navbar = () => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -175,3 +175,4 @@ export default function Navbar() {
     </header>
   );
 }
+export default Navbar;

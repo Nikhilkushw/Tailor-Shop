@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = "http://localhost:5000/api/work-images";
+const API = "https://tailor-shop-a5mn.onrender.com/api/work-images";
+const BASE_URL = "https://tailor-shop-a5mn.onrender.com";
 
 const AdminWorkImages = () => {
   const [works, setWorks] = useState([]);
   const [newWork, setNewWork] = useState({ type: "", sampleImage: null });
-
-  const [newItem, setNewItem] = useState({ title: "", description: "", image: null });
+  const [newItems, setNewItems] = useState({}); // per workId
   const [editItemData, setEditItemData] = useState(null);
 
   // ✅ Fetch works
   const fetchWorks = async () => {
-    const res = await axios.get(API);
-    setWorks(res.data);
+    try {
+      const res = await axios.get(API);
+      setWorks(res.data);
+    } catch (err) {
+      console.error("Error fetching works:", err);
+    }
   };
 
   useEffect(() => {
@@ -22,49 +26,70 @@ const AdminWorkImages = () => {
 
   // ✅ Create work
   const handleAddWork = async () => {
-    const data = new FormData();
-    data.append("type", newWork.type);
-    if (newWork.sampleImage) data.append("sampleImage", newWork.sampleImage);
+    try {
+      const data = new FormData();
+      data.append("type", newWork.type);
+      if (newWork.sampleImage) data.append("sampleImage", newWork.sampleImage);
 
-    await axios.post(API, data);
-    setNewWork({ type: "", sampleImage: null });
-    fetchWorks();
+      await axios.post(API, data);
+      setNewWork({ type: "", sampleImage: null });
+      fetchWorks();
+    } catch (err) {
+      console.error("Error adding work:", err);
+    }
   };
 
   // ✅ Delete work
   const handleDeleteWork = async (id) => {
-    await axios.delete(`${API}/${id}`);
-    fetchWorks();
+    try {
+      await axios.delete(`${API}/${id}`);
+      fetchWorks();
+    } catch (err) {
+      console.error("Error deleting work:", err);
+    }
   };
 
   // ✅ Add item
   const handleAddItem = async (workId) => {
-    const data = new FormData();
-    data.append("title", newItem.title);
-    data.append("description", newItem.description);
-    if (newItem.image) data.append("image", newItem.image);
+    try {
+      const newItem = newItems[workId];
+      const data = new FormData();
+      data.append("title", newItem.title);
+      data.append("description", newItem.description);
+      if (newItem.image) data.append("image", newItem.image);
 
-    await axios.post(`${API}/${workId}/items`, data);
-    setNewItem({ title: "", description: "", image: null });
-    fetchWorks();
+      await axios.post(`${API}/${workId}/items`, data);
+      setNewItems({ ...newItems, [workId]: { title: "", description: "", image: null } });
+      fetchWorks();
+    } catch (err) {
+      console.error("Error adding item:", err);
+    }
   };
 
   // ✅ Edit item
   const handleEditItem = async (workId) => {
-    const data = new FormData();
-    data.append("title", editItemData.title);
-    data.append("description", editItemData.description);
-    if (editItemData.image) data.append("image", editItemData.image);
+    try {
+      const data = new FormData();
+      data.append("title", editItemData.title);
+      data.append("description", editItemData.description);
+      if (editItemData.image) data.append("image", editItemData.image);
 
-    await axios.put(`${API}/${workId}/items/${editItemData._id}`, data);
-    setEditItemData(null);
-    fetchWorks();
+      await axios.put(`${API}/${workId}/items/${editItemData._id}`, data);
+      setEditItemData(null);
+      fetchWorks();
+    } catch (err) {
+      console.error("Error editing item:", err);
+    }
   };
 
   // ✅ Delete item
   const handleDeleteItem = async (workId, itemId) => {
-    await axios.delete(`${API}/${workId}/items/${itemId}`);
-    fetchWorks();
+    try {
+      await axios.delete(`${API}/${workId}/items/${itemId}`);
+      fetchWorks();
+    } catch (err) {
+      console.error("Error deleting item:", err);
+    }
   };
 
   return (
@@ -83,9 +108,7 @@ const AdminWorkImages = () => {
         />
         <input
           type="file"
-          onChange={(e) =>
-            setNewWork({ ...newWork, sampleImage: e.target.files[0] })
-          }
+          onChange={(e) => setNewWork({ ...newWork, sampleImage: e.target.files[0] })}
         />
         <button
           onClick={handleAddWork}
@@ -101,7 +124,7 @@ const AdminWorkImages = () => {
           <h3 className="font-bold">{work.type}</h3>
           {work.sampleImage && (
             <img
-              src={`http://localhost:5000/${work.sampleImage}`}
+              src={`${BASE_URL}/${work.sampleImage}`}
               alt="sample"
               className="w-32 h-32 object-cover my-2"
             />
@@ -119,23 +142,25 @@ const AdminWorkImages = () => {
             <input
               type="text"
               placeholder="Title"
-              value={newItem.title}
-              onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+              value={newItems[work._id]?.title || ""}
+              onChange={(e) =>
+                setNewItems({ ...newItems, [work._id]: { ...newItems[work._id], title: e.target.value } })
+              }
               className="border p-1 mr-2"
             />
             <input
               type="text"
               placeholder="Description"
-              value={newItem.description}
+              value={newItems[work._id]?.description || ""}
               onChange={(e) =>
-                setNewItem({ ...newItem, description: e.target.value })
+                setNewItems({ ...newItems, [work._id]: { ...newItems[work._id], description: e.target.value } })
               }
               className="border p-1 mr-2"
             />
             <input
               type="file"
               onChange={(e) =>
-                setNewItem({ ...newItem, image: e.target.files[0] })
+                setNewItems({ ...newItems, [work._id]: { ...newItems[work._id], image: e.target.files[0] } })
               }
             />
             <button
@@ -157,10 +182,7 @@ const AdminWorkImages = () => {
                       type="text"
                       value={editItemData.title}
                       onChange={(e) =>
-                        setEditItemData({
-                          ...editItemData,
-                          title: e.target.value,
-                        })
+                        setEditItemData({ ...editItemData, title: e.target.value })
                       }
                       className="border p-1 mr-2"
                     />
@@ -168,20 +190,14 @@ const AdminWorkImages = () => {
                       type="text"
                       value={editItemData.description}
                       onChange={(e) =>
-                        setEditItemData({
-                          ...editItemData,
-                          description: e.target.value,
-                        })
+                        setEditItemData({ ...editItemData, description: e.target.value })
                       }
                       className="border p-1 mr-2"
                     />
                     <input
                       type="file"
                       onChange={(e) =>
-                        setEditItemData({
-                          ...editItemData,
-                          image: e.target.files[0],
-                        })
+                        setEditItemData({ ...editItemData, image: e.target.files[0] })
                       }
                     />
                     <button
@@ -197,7 +213,7 @@ const AdminWorkImages = () => {
                     <p>{item.description}</p>
                     {item.image && (
                       <img
-                        src={`http://localhost:5000/${item.image}`}
+                        src={`${BASE_URL}/${item.image}`}
                         alt={item.title}
                         className="w-32 h-32 object-cover my-2"
                       />

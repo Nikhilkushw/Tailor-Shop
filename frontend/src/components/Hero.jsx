@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import HomeImage from "../images/homeImages/tailor.jpg";
 
-export default function Hero() {
+const Hero = () => {
   // Animation Variants
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
@@ -89,3 +89,5 @@ export default function Hero() {
     </section>
   );
 }
+
+export default Hero;

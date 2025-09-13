@@ -18,16 +18,29 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) =>
     cb(null, Date.now() + "-" + file.originalname),
 });
-const upload = multer({ storage });
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed!"), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
 
 // Work routes
 router.get("/", getAllWorks);
 router.post("/", upload.single("sampleImage"), createWork);
-router.put("/:id", upload.single("sampleImage"), updateWork);
-router.delete("/:id", deleteWork);
+router.put("/:workId", upload.single("sampleImage"), updateWork);
+router.delete("/:workId", deleteWork);
 
 // Item routes
-router.post("/:id/items", upload.single("image"), addItemToWork);
+router.post("/:workId/items", upload.single("image"), addItemToWork);
 router.put("/:workId/items/:itemId", upload.single("image"), editItem);
 router.delete("/:workId/items/:itemId", deleteItem);
 

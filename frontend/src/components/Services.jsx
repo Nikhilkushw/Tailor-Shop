@@ -17,14 +17,16 @@ export default function Services() {
   // Fetch services from backend
   const getServices = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/services");
+      const response = await axios.get(
+        "https://tailor-shop-a5mn.onrender.com/api/services"
+      );
       console.log("Services fetched:", response.data);
 
-      // अगर backend से services array के अंदर आती हैं
-      setServiceData(response.data || []);
+      // Adjust based on your API response shape
+      setServiceData(response.data.services || response.data || []);
     } catch (error) {
       console.error("Error fetching services:", error);
-      setServiceData([]); // error पर empty list दिखाओ
+      setServiceData([]);
     } finally {
       setLoading(false);
     }
@@ -47,7 +49,7 @@ export default function Services() {
         Our Services
       </motion.h2>
 
-      {/* Loader */}
+      {/* Loader / Empty / Data */}
       {loading ? (
         <p className="text-gray-500">Loading services...</p>
       ) : serviceData.length === 0 ? (
@@ -60,18 +62,15 @@ export default function Services() {
           viewport={{ once: true }}
           className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 relative"
         >
-          {serviceData.map((s) => (
+          {serviceData.map((s, idx) => (
             <motion.div
-              key={s._id}
+              key={s._id || idx}
               variants={fadeUp}
-              transition={{ duration: 0.1 }}
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0px 8px 20px rgba(0,0,0,0.1)",
-              }}
-              className="relative p-6 rounded-2xl border bg-white shadow-sm cursor-pointer transition-transform overflow-hidden group"
+              transition={{ duration: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              className="relative p-6 rounded-2xl border bg-white shadow-sm transition-all duration-300 overflow-hidden group hover:shadow-xl"
             >
-              {/* BorderBeam: Only visible on hover */}
+              {/* BorderBeam on hover */}
               <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <BorderBeam
                   size={120}

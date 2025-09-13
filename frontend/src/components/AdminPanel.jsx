@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-const API_BASE = "http://localhost:5000/api/user"; // अपने backend का URL
+const API_BASE = `https://tailor-shop-a5mn.onrender.com/api/user`; // backend URL
 
-export default function UsersList() {
+const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Add user modal state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -25,12 +26,21 @@ export default function UsersList() {
   }, []);
 
   async function fetchUsers() {
+    setLoading(true);
     try {
       const res = await fetch(API_BASE);
       const data = await res.json();
-      setUsers(data);
+
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else if (data.users) {
+        setUsers(data.users);
+      } else {
+        setError("Unexpected API response");
+      }
     } catch (err) {
       console.error("Error fetching users:", err);
+      setError("Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -43,6 +53,7 @@ export default function UsersList() {
       setUsers(users.filter((u) => u._id !== id));
     } catch (err) {
       console.error("Delete error:", err);
+      setError("Failed to delete user");
     }
   }
 
@@ -55,11 +66,15 @@ export default function UsersList() {
         body: JSON.stringify(newUser),
       });
       const data = await res.json();
-      setUsers([...users, data]); // नया user list में जोड़ो
+
+      if (data._id) {
+        setUsers([...users, data]); // append new user
+      }
       setShowAddModal(false);
       setNewUser({ name: "", email: "", number: "", password: "", role: "user" });
     } catch (err) {
       console.error("Add user error:", err);
+      setError("Failed to add user");
     }
   }
 
@@ -73,12 +88,14 @@ export default function UsersList() {
       });
       const data = await res.json();
 
-      // user list update करो
-      setUsers(users.map((u) => (u._id === data._id ? data : u)));
+      if (data._id) {
+        setUsers(users.map((u) => (u._id === data._id ? data : u)));
+      }
       setShowEditModal(false);
       setEditUser(null);
     } catch (err) {
       console.error("Edit user error:", err);
+      setError("Failed to update user");
     }
   }
 
@@ -95,6 +112,8 @@ export default function UsersList() {
           + Add User
         </button>
       </div>
+
+      {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <table className="w-full border-collapse border">
         <thead>
@@ -263,3 +282,5 @@ export default function UsersList() {
     </div>
   );
 }
+
+export default UsersList;

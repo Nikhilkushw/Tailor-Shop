@@ -3,24 +3,27 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-export default function Gallery() {
+const Gallery = () => {
   const [works, setWorks] = useState([]);
   const navigate = useNavigate();
+
+  // ✅ Base URL for Render
+  const BASE_URL = "https://tailor-shop-a5mn.onrender.com";
 
   useEffect(() => {
     const fetchWorks = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/work-images");
+        const res = await axios.get(`${BASE_URL}/api/work-images`);
         setWorks(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching works:", err);
       }
     };
     fetchWorks();
   }, []);
 
   const handleSelect = (item) => {
-    navigate("/selected-type", { state: { item } }); // 👈 data pass kar diya
+    navigate("/selected-type", { state: { item } }); // 👈 pass selected work
   };
 
   return (
@@ -38,18 +41,18 @@ export default function Gallery() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            {/* Background Image with Blur */}
+            {/* Background Image */}
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: `url(http://localhost:5000/${item.sampleImage.replace(
+                backgroundImage: `url(${BASE_URL}/${item.sampleImage.replace(
                   /\\/g,
                   "/"
                 )})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                filter: "blur(0.5px)", // 👈 blur effect
-                transform: "scale(1.1)", // thoda zoom to hide edges of blur
+                filter: "blur(0.5px)", // small blur
+                transform: "scale(1.1)", // zoom to hide blur edges
               }}
             ></div>
 
@@ -66,3 +69,5 @@ export default function Gallery() {
     </section>
   );
 }
+
+export default Gallery;

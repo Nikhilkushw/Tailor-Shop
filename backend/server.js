@@ -2,11 +2,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import { fileURLToPath } from "url";
+
 import connectDB from "./config/db.js";
 import userRouter from "./route/user.route.js";
 import transporter from "./config/email.js";
 import serviceRouter from "./route/service.route.js";
-import offerRoutes from "./route/offer.model.js";
+import offerRoutes from "./route/offer.route.js"; // ✅ route hona chahiye
 import workImageRoutes from "./route/work.route.js";
 
 dotenv.config();
@@ -15,11 +17,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Static file serving (uploads public)
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+// ✅ Proper __dirname resolve for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ✅ Static file serving
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ✅ DB connect
 connectDB();
+
+// ✅ Root health check (important for Render)
+app.get("/", (req, res) => {
+  res.send("✅ Tailor Shop API is running...");
+});
 
 // ✅ Contact form API
 const sendMail = async (mailOptions) => {
@@ -53,8 +64,11 @@ You have received a new enquiry:
 });
 
 // ✅ Routes
+app.get("/", (req, res) => {
+  res.send("✅ Tailor Shop Backend is running!");
+});
 app.use("/api/user", userRouter);
-app.use("/api/services", serviceRouter)
+app.use("/api/services", serviceRouter);
 app.use("/api/offers", offerRoutes);
 app.use("/api/work-images", workImageRoutes);
 

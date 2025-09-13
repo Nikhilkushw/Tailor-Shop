@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function ResetPassword() {
+const ResetPassword = () => {
   const { token } = useParams(); // get token from URL
   const navigate = useNavigate();
 
@@ -11,27 +11,42 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+
+  const API_URL = "https://tailor-shop-a5mn.onrender.com/api/user";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Basic validation
+    if (password.length < 6) {
+      setMessage("❌ Password must be at least 6 characters");
+      setIsError(true);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setMessage("❌ Passwords do not match");
+      setIsError(true);
       return;
     }
 
     try {
       setLoading(true);
       setMessage("");
+      setIsError(false);
 
-      const res = await axios.post(
-        `http://localhost:5000/api/user/reset-password/${token}`,
-        { password }
-      );
+      await axios.post(`${API_URL}/reset-password/${token}`, { password });
 
       setMessage("✅ Password reset successful! Redirecting...");
+      setIsError(false);
+
+      // Redirect after success
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
+      console.error("Reset password error:", err);
       setMessage(err.response?.data?.message || "❌ Something went wrong");
+      setIsError(true);
     } finally {
       setLoading(false);
     }
@@ -73,8 +88,18 @@ export default function ResetPassword() {
           {loading ? "Resetting..." : "Reset Password"}
         </button>
 
-        {message && <p className="mt-4 text-center">{message}</p>}
+        {message && (
+          <p
+            className={`mt-4 text-center font-medium ${
+              isError ? "text-red-600" : "text-green-600"
+            }`}
+          >
+            {message}
+          </p>
+        )}
       </form>
     </div>
   );
-}
+};
+
+export default ResetPassword;

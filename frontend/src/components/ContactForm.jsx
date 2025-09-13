@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 
-export default function Contact() {
+const Contact = () => {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -11,23 +11,31 @@ export default function Contact() {
     message: "",
   });
 
-  const [status, setStatus] = useState(null); // ✅ success/error message
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/contact", form);
+      // ✅ Use environment variable or fallback localhost for dev
+      const API =
+        import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+      await axios.post(`${API}/api/contact`, form);
+
       setStatus({ type: "success", msg: "✅ Message sent successfully!" });
       setForm({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
       setStatus({ type: "error", msg: "❌ Failed to send. Please try again." });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Animation variants
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
@@ -35,7 +43,6 @@ export default function Contact() {
 
   return (
     <section className="max-w-4xl mx-auto px-6 py-12">
-      {/* Heading */}
       <motion.h2
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -45,7 +52,6 @@ export default function Contact() {
         📩 Contact Us
       </motion.h2>
 
-      {/* Form */}
       <motion.form
         onSubmit={handleSubmit}
         initial="hidden"
@@ -53,7 +59,6 @@ export default function Contact() {
         variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
         className="flex flex-col gap-4 p-8 border rounded-2xl shadow-lg bg-white"
       >
-        {/* Inputs */}
         {["name", "email", "phone"].map((field, i) => (
           <motion.input
             key={i}
@@ -68,7 +73,6 @@ export default function Contact() {
           />
         ))}
 
-        {/* Message */}
         <motion.textarea
           name="message"
           placeholder="Your Message"
@@ -79,19 +83,18 @@ export default function Contact() {
           className="border px-4 py-3 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-400 outline-none transition h-32 resize-none"
         />
 
-        {/* Button */}
         <motion.button
           type="submit"
+          disabled={loading}
           variants={fadeUp}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="bg-sky-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-sky-700 transition"
+          className="bg-sky-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-sky-700 transition disabled:bg-gray-400"
         >
-          🚀 Send Message
+          {loading ? "⏳ Sending..." : "🚀 Send Message"}
         </motion.button>
       </motion.form>
 
-      {/* Status Message */}
       {status && (
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -106,3 +109,5 @@ export default function Contact() {
     </section>
   );
 }
+
+export default Contact;

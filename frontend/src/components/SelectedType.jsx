@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lens } from "../stylishComponents/lens"; // 👈 Lens import
+import { Lens } from "../stylishComponents/lens";
 
 const SelectedType = () => {
   const location = useLocation();
   const { item } = location.state || {};
-  const [selectedImg, setSelectedImg] = useState(null); // 👈 selected image
+  const [selectedImg, setSelectedImg] = useState(null);
+
+  const BASE_URL = "https://tailor-shop-a5mn.onrender.com"; // 🔥 change here for prod
 
   if (!item) {
     return <p className="text-center mt-10">No type selected</p>;
@@ -18,7 +20,7 @@ const SelectedType = () => {
         {item.type} Works
       </h2>
 
-      {/* Image Modal with Lens Effect */}
+      {/* Modal */}
       <AnimatePresence>
         {selectedImg && (
           <motion.div
@@ -26,8 +28,10 @@ const SelectedType = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={() => setSelectedImg(null)} // ✅ click outside closes
           >
             <motion.div
+              onClick={(e) => e.stopPropagation()} // prevent modal close
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
@@ -57,18 +61,16 @@ const SelectedType = () => {
 
       {/* Grid of Images */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {item.items.map((work) => (
+        {item.items?.map((work, idx) => (
           <div
-            key={work._id}
+            key={work._id || idx}
             className="border rounded-lg shadow p-4 bg-white cursor-pointer"
             onClick={() =>
-              setSelectedImg(
-                `http://localhost:5000/${work.image.replace(/\\/g, "/")}`
-              )
+              setSelectedImg(`${BASE_URL}/${work.image.replace(/\\/g, "/")}`)
             }
           >
             <img
-              src={`http://localhost:5000/${work.image.replace(/\\/g, "/")}`}
+              src={`${BASE_URL}/${work.image.replace(/\\/g, "/")}`}
               alt={work.title}
               className="w-full h-48 object-cover rounded mb-3"
             />

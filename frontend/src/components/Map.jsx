@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-export default function Map() {
+const Map = () => {
   const [customerAddress, setCustomerAddress] = useState("");
 
   // 👇 Shop ka permanent address
@@ -74,3 +74,5 @@ export default function Map() {
     </motion.div>
   );
 }
+
+export default Map;
