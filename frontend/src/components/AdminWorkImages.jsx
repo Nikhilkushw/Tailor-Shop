@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 
-const API = "http://localhost:5000/api/work-images"; 
-const BASE_URL = "http://localhost:5000";
+const API = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/work-images`;
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function AdminWorkImages() {
+  
   const [works, setWorks] = useState([]);
   const [newWork, setNewWork] = useState({ type: "", sampleImage: null, preview: null });
   const [newItem, setNewItem] = useState({ title: "", description: "", image: null, preview: null, workId: null });
@@ -24,7 +25,7 @@ export default function AdminWorkImages() {
     }
   };
 
-  // ✅ Handle Work input
+  // Handle Work input
   const handleWorkChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
@@ -32,13 +33,14 @@ export default function AdminWorkImages() {
     } else setNewWork({ ...newWork, [name]: value });
   };
 
-  // ✅ Add Work
+  // Add Work
   const handleAddWork = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
       formData.append("type", newWork.type);
       if (newWork.sampleImage) formData.append("sampleImage", newWork.sampleImage);
+
       await axios.post(API, formData);
       setNewWork({ type: "", sampleImage: null, preview: null });
       fetchWorks();
@@ -47,13 +49,14 @@ export default function AdminWorkImages() {
     }
   };
 
-  // ✅ Update Work
+  // Update Work
   const handleUpdateWork = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
       formData.append("type", editingWork.type);
       if (editingWork.sampleImage) formData.append("sampleImage", editingWork.sampleImage);
+
       await axios.put(`${API}/${editingWork._id}`, formData);
       setEditingWork(null);
       fetchWorks();
@@ -62,7 +65,7 @@ export default function AdminWorkImages() {
     }
   };
 
-  // ✅ Delete Work
+  // Delete Work
   const handleDeleteWork = async (id) => {
     try {
       await axios.delete(`${API}/${id}`);
@@ -72,7 +75,7 @@ export default function AdminWorkImages() {
     }
   };
 
-  // ✅ Handle Item input
+  // Handle Item input
   const handleItemChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
@@ -80,7 +83,7 @@ export default function AdminWorkImages() {
     } else setNewItem({ ...newItem, [name]: value });
   };
 
-  // ✅ Add Item
+  // Add Item
   const handleAddItem = async (e) => {
     e.preventDefault();
     if (!newItem.workId) return alert("⚠️ Select a work first!");
@@ -89,6 +92,7 @@ export default function AdminWorkImages() {
       formData.append("title", newItem.title);
       formData.append("description", newItem.description);
       if (newItem.image) formData.append("image", newItem.image);
+
       await axios.post(`${API}/${newItem.workId}/items`, formData);
       setNewItem({ title: "", description: "", image: null, preview: null, workId: null });
       fetchWorks();
@@ -97,7 +101,7 @@ export default function AdminWorkImages() {
     }
   };
 
-  // ✅ Update Item
+  // Update Item
   const handleUpdateItem = async (e) => {
     e.preventDefault();
     try {
@@ -105,6 +109,7 @@ export default function AdminWorkImages() {
       formData.append("title", editingItem.title);
       formData.append("description", editingItem.description);
       if (editingItem.image) formData.append("image", editingItem.image);
+
       await axios.put(`${API}/${editingItem.workId}/items/${editingItem._id}`, formData);
       setEditingItem(null);
       fetchWorks();
@@ -113,7 +118,7 @@ export default function AdminWorkImages() {
     }
   };
 
-  // ✅ Delete Item
+  // Delete Item
   const handleDeleteItem = async (workId, itemId) => {
     try {
       await axios.delete(`${API}/${workId}/items/${itemId}`);
@@ -163,7 +168,7 @@ export default function AdminWorkImages() {
             ) : (
               <>
                 <h2 className="font-semibold text-lg">{work.type}</h2>
-                {work.sampleImage && <img src={`${BASE_URL}/${work.sampleImage}`} alt={work.type} className="h-32 w-full object-cover mt-2 rounded" />}
+                {work.sampleImage && <img src={`${BASE_URL}/${work.sampleImage.replace(/\\/g, "/")}`} alt={work.type} className="h-32 w-full object-cover mt-2 rounded" />}
                 <div className="flex gap-2 mt-3">
                   <button onClick={() => setEditingWork(work)} className="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
                   <button onClick={() => handleDeleteWork(work._id)} className="bg-red-500 text-white px-3 py-1 rounded">Delete</button>
@@ -195,7 +200,7 @@ export default function AdminWorkImages() {
                         <>
                           <h4 className="font-medium">{item.title}</h4>
                           <p className="text-sm">{item.description}</p>
-                          {item.image && <img src={`${BASE_URL}/${item.image}`} alt={item.title} className="h-20 w-full object-cover mt-2 rounded" />}
+                          {item.image && <img src={`${BASE_URL}/${item.image.replace(/\\/g, "/")}`} alt={item.title} className="h-20 w-full object-cover mt-2 rounded" />}
                           <div className="flex gap-2 mt-2">
                             <button onClick={() => setEditingItem({ ...item, workId: work._id })} className="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
                             <button onClick={() => handleDeleteItem(work._id, item._id)} className="bg-red-400 text-white px-3 py-1 rounded">Delete</button>

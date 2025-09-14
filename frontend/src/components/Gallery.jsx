@@ -3,18 +3,19 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// ✅ Use environment variable with fallback
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+console.log("API URL:", import.meta.env.VITE_API_URL);
+const API = `${BASE_URL}/api/work-images`;
+
 const Gallery = () => {
   const [works, setWorks] = useState([]);
   const navigate = useNavigate();
 
-  // ✅ Base URL of your server
-  const BASE_URL = "http://localhost:5000";
-
-  // ✅ Fetch works from API
   useEffect(() => {
     const fetchWorks = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/work-images`);
+        const res = await axios.get(API);
         setWorks(res.data);
       } catch (err) {
         console.error("Error fetching works:", err);
@@ -23,7 +24,6 @@ const Gallery = () => {
     fetchWorks();
   }, []);
 
-  // ✅ Handle work select
   const handleSelect = (item) => {
     navigate("/selected-type", { state: { item } });
   };
@@ -43,23 +43,20 @@ const Gallery = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            {/* ✅ Background Image from DB (relative path + BASE_URL) */}
+            {/* Background Image */}
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: `url(${BASE_URL}/${item.sampleImage.replace(
-                  /\\/g,
-                  "/"
-                )})`,
+                backgroundImage: `url(${item.sampleImage ? `${BASE_URL}/${item.sampleImage.replace(/\\/g, "/")}` : ""})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             ></div>
 
-            {/* ✅ Dark Overlay */}
+            {/* Dark Overlay */}
             <div className="absolute inset-0 bg-black/40"></div>
 
-            {/* ✅ Text */}
+            {/* Text */}
             <span className="relative text-white font-semibold text-center px-2">
               {item.type}
             </span>

@@ -8,7 +8,7 @@ const itemSchema = new mongoose.Schema({
 
 const workSchema = new mongoose.Schema({
   type: { type: String, required: true },
-  sampleImage: String,
+  sampleImage: String, // relative path
   items: [itemSchema],
 });
 

@@ -36,9 +36,7 @@ export const updateWork = async (req, res) => {
     if (!work) return res.status(404).json({ message: "Work not found" });
 
     work.type = req.body.type || work.type;
-    if (req.file) {
-      work.sampleImage = `uploads/${req.file.filename}`;
-    }
+    if (req.file) work.sampleImage = `uploads/${req.file.filename}`;
 
     await work.save();
     res.json(work);
@@ -92,10 +90,7 @@ export const editItem = async (req, res) => {
 
     item.title = req.body.title || item.title;
     item.description = req.body.description || item.description;
-
-    if (req.file) {
-      item.image = `uploads/${req.file.filename}`;
-    }
+    if (req.file) item.image = `uploads/${req.file.filename}`;
 
     await work.save();
     res.json(work);
@@ -110,11 +105,9 @@ export const deleteItem = async (req, res) => {
     const work = await Work.findById(req.params.workId);
     if (!work) return res.status(404).json({ message: "Work not found" });
 
-    work.items = work.items.filter(
-      (i) => i._id.toString() !== req.params.itemId
-    );
-
+    work.items = work.items.filter(i => i._id.toString() !== req.params.itemId);
     await work.save();
+
     res.json(work);
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -6,10 +6,10 @@ import { fileURLToPath } from "url";
 
 import connectDB from "./config/db.js";
 import userRouter from "./route/user.route.js";
-import transporter from "./config/email.js";
 import serviceRouter from "./route/service.route.js";
 import offerRoutes from "./route/offer.route.js"; 
 import workImageRoutes from "./route/work.route.js";
+import transporter from "./config/email.js";
 
 dotenv.config();
 
@@ -21,8 +21,7 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Serve uploads folder as static
-// e.g. http://localhost:5000/uploads/abc.jpg OR https://tailor-shop-a5mn.onrender.com/uploads/abc.jpg
+// ✅ Serve uploads folder statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ✅ Connect MongoDB

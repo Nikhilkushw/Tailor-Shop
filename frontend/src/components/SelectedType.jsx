@@ -3,12 +3,12 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lens } from "../stylishComponents/lens";
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const SelectedType = () => {
   const location = useLocation();
   const { item } = location.state || {};
   const [selectedImg, setSelectedImg] = useState(null);
-
-  const BASE_URL = "http://localhost:5000"; 
 
   if (!item) {
     return <p className="text-center mt-10">No type selected</p>;
@@ -59,24 +59,27 @@ const SelectedType = () => {
 
       {/* Grid */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {item.items?.map((work, idx) => (
-          <motion.div
-            key={work._id || idx}
-            className="border rounded-lg shadow p-4 bg-white cursor-pointer hover:shadow-xl transition transform hover:scale-105"
-            whileHover={{ scale: 1.05 }}
-            onClick={() =>
-              setSelectedImg(`${BASE_URL}/${work.image.replace(/\\/g, "/")}`)
-            }
-          >
-            <img
-              src={`${BASE_URL}/${work.image.replace(/\\/g, "/")}`}
-              alt={work.title}
-              className="w-full h-48 object-cover rounded mb-3"
-            />
-            <h3 className="font-semibold">{work.title}</h3>
-            <p className="text-gray-600 text-sm">{work.description}</p>
-          </motion.div>
-        ))}
+        {item.items?.map((work) => {
+          const imgUrl = work.image ? `${BASE_URL}/${work.image.replace(/\\/g, "/")}` : "";
+          return (
+            <motion.div
+              key={work._id}
+              className="border rounded-lg shadow p-4 bg-white cursor-pointer hover:shadow-xl transition transform hover:scale-105"
+              whileHover={{ scale: 1.05 }}
+              onClick={() => setSelectedImg(imgUrl)}
+            >
+              {imgUrl && (
+                <img
+                  src={imgUrl}
+                  alt={work.title}
+                  className="w-full h-48 object-cover rounded mb-3"
+                />
+              )}
+              <h3 className="font-semibold">{work.title}</h3>
+              <p className="text-gray-600 text-sm">{work.description}</p>
+            </motion.div>
+          );
+        })}
       </div>
     </section>
   );
