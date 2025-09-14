@@ -5,6 +5,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true); // 👈 added
 
   // On mount, check localStorage
   useEffect(() => {
@@ -15,11 +16,12 @@ export function AuthProvider({ children }) {
       setUser(JSON.parse(savedUser));
       setToken(savedToken);
     }
+
+    setLoading(false); // 👈 done checking
   }, []);
 
   // Login function
   const login = (data) => {
-    // data expected: { user: {...}, token: "..." }
     if (!data || !data.user || !data.token) return;
 
     setUser(data.user);
@@ -38,13 +40,12 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Custom hook
 export function useAuth() {
   return useContext(AuthContext);
 }

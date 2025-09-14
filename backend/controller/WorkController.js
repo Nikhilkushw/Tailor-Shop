@@ -14,11 +14,14 @@ export const getAllWorks = async (req, res) => {
 export const createWork = async (req, res) => {
   try {
     const { type } = req.body;
+    const relativePath = req.file ? `uploads/${req.file.filename}` : null;
+
     const newWork = new Work({
       type,
-      sampleImage: req.file ? req.file.path.replace(/\\/g, "/") : null,
+      sampleImage: relativePath,
       items: [],
     });
+
     await newWork.save();
     res.json(newWork);
   } catch (err) {
@@ -29,11 +32,13 @@ export const createWork = async (req, res) => {
 // ✅ Update work type/sampleImage
 export const updateWork = async (req, res) => {
   try {
-    const work = await Work.findById(req.params.id);
+    const work = await Work.findById(req.params.workId);
     if (!work) return res.status(404).json({ message: "Work not found" });
 
     work.type = req.body.type || work.type;
-    if (req.file) work.sampleImage = req.file.path.replace(/\\/g, "/");
+    if (req.file) {
+      work.sampleImage = `uploads/${req.file.filename}`;
+    }
 
     await work.save();
     res.json(work);
@@ -45,7 +50,7 @@ export const updateWork = async (req, res) => {
 // ✅ Delete work
 export const deleteWork = async (req, res) => {
   try {
-    await Work.findByIdAndDelete(req.params.id);
+    await Work.findByIdAndDelete(req.params.workId);
     res.json({ message: "Work deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -55,14 +60,16 @@ export const deleteWork = async (req, res) => {
 // ✅ Add new item
 export const addItemToWork = async (req, res) => {
   try {
-    const work = await Work.findById(req.params.id);
+    const work = await Work.findById(req.params.workId);
     if (!work) return res.status(404).json({ message: "Work not found" });
 
     const { title, description } = req.body;
+    const relativePath = req.file ? `uploads/${req.file.filename}` : null;
+
     const newItem = {
       title,
       description,
-      image: req.file ? req.file.path.replace(/\\/g, "/") : null,
+      image: relativePath,
     };
 
     work.items.push(newItem);
@@ -85,7 +92,10 @@ export const editItem = async (req, res) => {
 
     item.title = req.body.title || item.title;
     item.description = req.body.description || item.description;
-    if (req.file) item.image = req.file.path.replace(/\\/g, "/");
+
+    if (req.file) {
+      item.image = `uploads/${req.file.filename}`;
+    }
 
     await work.save();
     res.json(work);
@@ -103,8 +113,8 @@ export const deleteItem = async (req, res) => {
     work.items = work.items.filter(
       (i) => i._id.toString() !== req.params.itemId
     );
-    await work.save();
 
+    await work.save();
     res.json(work);
   } catch (err) {
     res.status(500).json({ message: err.message });

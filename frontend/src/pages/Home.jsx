@@ -56,7 +56,7 @@ export default function Home() {
         transition={{ duration: 0.8, delay: 0.6 }}
         viewport={{ once: true }}
       >
-        <Gallery limit={6} />
+        <Gallery />
       </motion.div>
 
       {/* Map Section */}

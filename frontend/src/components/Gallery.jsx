@@ -7,9 +7,10 @@ const Gallery = () => {
   const [works, setWorks] = useState([]);
   const navigate = useNavigate();
 
-  // ✅ Base URL for Render
-  const BASE_URL = "https://tailor-shop-a5mn.onrender.com";
+  // ✅ Base URL of your server
+  const BASE_URL = "http://localhost:5000";
 
+  // ✅ Fetch works from API
   useEffect(() => {
     const fetchWorks = async () => {
       try {
@@ -22,8 +23,9 @@ const Gallery = () => {
     fetchWorks();
   }, []);
 
+  // ✅ Handle work select
   const handleSelect = (item) => {
-    navigate("/selected-type", { state: { item } }); // 👈 pass selected work
+    navigate("/selected-type", { state: { item } });
   };
 
   return (
@@ -37,11 +39,11 @@ const Gallery = () => {
           <motion.div
             key={item._id}
             onClick={() => handleSelect(item)}
-            className="w-24 h-24 rounded-full border-2 shadow-md cursor-pointer relative overflow-hidden flex items-center justify-center"
+            className="w-28 h-28 rounded-full border-2 shadow-lg cursor-pointer relative overflow-hidden flex items-center justify-center"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            {/* Background Image */}
+            {/* ✅ Background Image from DB (relative path + BASE_URL) */}
             <div
               className="absolute inset-0"
               style={{
@@ -51,15 +53,13 @@ const Gallery = () => {
                 )})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                filter: "blur(0.5px)", // small blur
-                transform: "scale(1.1)", // zoom to hide blur edges
               }}
             ></div>
 
-            {/* Dark Overlay */}
+            {/* ✅ Dark Overlay */}
             <div className="absolute inset-0 bg-black/40"></div>
 
-            {/* Text */}
+            {/* ✅ Text */}
             <span className="relative text-white font-semibold text-center px-2">
               {item.type}
             </span>
@@ -68,6 +68,6 @@ const Gallery = () => {
       </div>
     </section>
   );
-}
+};
 
 export default Gallery;

@@ -8,7 +8,7 @@ import connectDB from "./config/db.js";
 import userRouter from "./route/user.route.js";
 import transporter from "./config/email.js";
 import serviceRouter from "./route/service.route.js";
-import offerRoutes from "./route/offer.route.js"; // ✅ route hona chahiye
+import offerRoutes from "./route/offer.route.js"; 
 import workImageRoutes from "./route/work.route.js";
 
 dotenv.config();
@@ -17,19 +17,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Proper __dirname resolve for ES modules
+// ✅ Proper __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Static file serving
+// ✅ Serve uploads folder as static
+// e.g. http://localhost:5000/uploads/abc.jpg OR https://tailor-shop-a5mn.onrender.com/uploads/abc.jpg
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ DB connect
+// ✅ Connect MongoDB
 connectDB();
 
-// ✅ Root health check (important for Render)
+// ✅ Health check route
 app.get("/", (req, res) => {
-  res.send("✅ Tailor Shop API is running...");
+  res.send("✅ Tailor Shop Backend is running...");
 });
 
 // ✅ Contact form API
@@ -63,14 +64,17 @@ You have received a new enquiry:
   }
 });
 
-// ✅ Routes
-app.get("/", (req, res) => {
-  res.send("✅ Tailor Shop Backend is running!");
-});
+// ✅ API routes
 app.use("/api/user", userRouter);
 app.use("/api/services", serviceRouter);
 app.use("/api/offers", offerRoutes);
 app.use("/api/work-images", workImageRoutes);
 
+// ✅ 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

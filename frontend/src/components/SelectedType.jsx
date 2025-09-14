@@ -8,7 +8,7 @@ const SelectedType = () => {
   const { item } = location.state || {};
   const [selectedImg, setSelectedImg] = useState(null);
 
-  const BASE_URL = "https://tailor-shop-a5mn.onrender.com"; // 🔥 change here for prod
+  const BASE_URL = "http://localhost:5000"; 
 
   if (!item) {
     return <p className="text-center mt-10">No type selected</p>;
@@ -28,17 +28,16 @@ const SelectedType = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedImg(null)} // ✅ click outside closes
+            onClick={() => setSelectedImg(null)}
           >
             <motion.div
-              onClick={(e) => e.stopPropagation()} // prevent modal close
+              onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ duration: 0.3 }}
               className="relative"
             >
-              {/* Close Button */}
               <button
                 onClick={() => setSelectedImg(null)}
                 className="absolute -top-10 right-0 bg-white text-black px-3 py-1 rounded-full shadow hover:bg-gray-200 transition z-50"
@@ -46,7 +45,6 @@ const SelectedType = () => {
                 ✕
               </button>
 
-              {/* Lens Image */}
               <Lens zoomFactor={2} lensSize={200} blurEdge maskShape="circle">
                 <img
                   src={selectedImg}
@@ -59,12 +57,13 @@ const SelectedType = () => {
         )}
       </AnimatePresence>
 
-      {/* Grid of Images */}
+      {/* Grid */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
         {item.items?.map((work, idx) => (
-          <div
+          <motion.div
             key={work._id || idx}
-            className="border rounded-lg shadow p-4 bg-white cursor-pointer"
+            className="border rounded-lg shadow p-4 bg-white cursor-pointer hover:shadow-xl transition transform hover:scale-105"
+            whileHover={{ scale: 1.05 }}
             onClick={() =>
               setSelectedImg(`${BASE_URL}/${work.image.replace(/\\/g, "/")}`)
             }
@@ -76,7 +75,7 @@ const SelectedType = () => {
             />
             <h3 className="font-semibold">{work.title}</h3>
             <p className="text-gray-600 text-sm">{work.description}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
