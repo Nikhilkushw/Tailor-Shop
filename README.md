@@ -1,24 +1,28 @@
-# Tailor Shop Website – Monorepo
+# 🧵 Tailor Shop Web Application
 
-This bundle contains:
-- `frontend/` (React + Vite + Tailwind + React Router)
-- `backend/` (Express + Nodemailer) – optional for the contact form
+A full-stack **Tailor Shop Web Application** built using the **MERN stack**, designed to help customers explore tailoring services, view sample works, and allow administrators to manage content efficiently.
 
-## Quick start
-1) Frontend
-```bash
-cd frontend
-npm i
-npm run dev
-```
+---
 
-2) Backend (optional for contact form)
-```bash
-cd backend
-cp .env.example .env
-# Edit .env with your SMTP credentials
-npm i
-npm start
-```
+## 🚀 Features
 
-3) Connect frontend to backend by setting `VITE_CONTACT_ENDPOINT` in `frontend/.env`.
+- **Customer Features**
+  - Browse tailoring services and sample works
+  - Responsive and user-friendly interface
+  - Fast and optimized image loading
+
+- **Admin Features**
+  - Secure **admin panel with role-based access control**
+  - Manage services, categories, and sample work images
+  - Upload and store images using **Multer + Cloud storage**
+
+- **Tech Highlights**
+  - **Frontend:** React, Tailwind CSS
+  - **Backend:** Node.js, Express.js
+  - **Database:** MongoDB
+  - **Image Handling:** Multer + Cloud Integration
+
+---
+
+## 📂 Project Structure
+
