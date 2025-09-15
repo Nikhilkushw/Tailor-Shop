@@ -3,15 +3,13 @@ import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lens } from "../stylishComponents/lens";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 const SelectedType = () => {
   const location = useLocation();
   const { item } = location.state || {};
   const [selectedImg, setSelectedImg] = useState(null);
 
   if (!item) {
-    return <p className="text-center mt-10">No type selected</p>;
+    return <p className="text-center mt-10 text-gray-600">⚠️ No type selected</p>;
   }
 
   return (
@@ -20,7 +18,7 @@ const SelectedType = () => {
         {item.type} Works
       </h2>
 
-      {/* Modal */}
+      {/* 🖼️ Modal for zoom view */}
       <AnimatePresence>
         {selectedImg && (
           <motion.div
@@ -48,7 +46,7 @@ const SelectedType = () => {
               <Lens zoomFactor={2} lensSize={200} blurEdge maskShape="circle">
                 <img
                   src={selectedImg}
-                  alt="Large preview"
+                  alt="Zoom preview"
                   className="max-w-[90vw] max-h-[80vh] rounded-lg shadow-xl object-contain"
                 />
               </Lens>
@@ -57,30 +55,32 @@ const SelectedType = () => {
         )}
       </AnimatePresence>
 
-      {/* Grid */}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {item.items?.map((work) => {
-          const imgUrl = work.image ? `${BASE_URL}/${work.image.replace(/\\/g, "/")}` : "";
-          return (
-            <motion.div
-              key={work._id}
-              className="border rounded-lg shadow p-4 bg-white cursor-pointer hover:shadow-xl transition transform hover:scale-105"
-              whileHover={{ scale: 1.05 }}
-              onClick={() => setSelectedImg(imgUrl)}
-            >
-              {imgUrl && (
+      {/* 📋 Works Grid */}
+      {item.items?.length > 0 ? (
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {item.items.map((work) => {
+            if (!work.image) return null; // ❌ agar image hi nahi hai to skip
+            return (
+              <motion.div
+                key={work._id}
+                className="border rounded-lg shadow p-4 bg-white cursor-pointer hover:shadow-xl transition transform hover:scale-105"
+                whileHover={{ scale: 1.05 }}
+                onClick={() => setSelectedImg(work.image)}
+              >
                 <img
-                  src={imgUrl}
-                  alt={work.title}
+                  src={work.image}
+                  alt={work.title || "Work preview"}
                   className="w-full h-48 object-cover rounded mb-3"
                 />
-              )}
-              <h3 className="font-semibold">{work.title}</h3>
-              <p className="text-gray-600 text-sm">{work.description}</p>
-            </motion.div>
-          );
-        })}
-      </div>
+                <h3 className="font-semibold">{work.title}</h3>
+                <p className="text-gray-600 text-sm">{work.description}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-center text-gray-500 mt-10">No works found</p>
+      )}
     </section>
   );
 };

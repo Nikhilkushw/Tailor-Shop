@@ -1,8 +1,6 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import connectDB from "./config/db.js";
 import userRouter from "./route/user.route.js";
@@ -15,14 +13,8 @@ dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
-
-// ✅ Proper __dirname for ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ✅ Serve uploads folder statically
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.json()); // important
+app.use(express.urlencoded({ extended: true })); // optional
 
 // ✅ Connect MongoDB
 connectDB();

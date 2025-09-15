@@ -3,15 +3,15 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// ✅ Use environment variable with fallback
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-console.log("API URL:", import.meta.env.VITE_API_URL);
-const API = `${BASE_URL}/api/work-images`;
+const API = `${
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
+}/api/work-images`;
 
 const Gallery = () => {
   const [works, setWorks] = useState([]);
   const navigate = useNavigate();
 
+  // ✅ Fetch all works
   useEffect(() => {
     const fetchWorks = async () => {
       try {
@@ -24,16 +24,19 @@ const Gallery = () => {
     fetchWorks();
   }, []);
 
+  // ✅ Navigate to SelectedType
   const handleSelect = (item) => {
     navigate("/selected-type", { state: { item } });
   };
 
   return (
     <section className="container py-12">
+      {/* Title */}
       <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">
         Work Gallery
       </h2>
 
+      {/* Work Types - Circle Cards */}
       <div className="flex flex-wrap justify-center gap-10 mb-10">
         {works.map((item) => (
           <motion.div
@@ -47,7 +50,7 @@ const Gallery = () => {
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: `url(${item.sampleImage ? `${BASE_URL}/${item.sampleImage.replace(/\\/g, "/")}` : ""})`,
+                backgroundImage: `url(${item.sampleImage || ""})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
@@ -56,7 +59,7 @@ const Gallery = () => {
             {/* Dark Overlay */}
             <div className="absolute inset-0 bg-black/40"></div>
 
-            {/* Text */}
+            {/* Type Text */}
             <span className="relative text-white font-semibold text-center px-2">
               {item.type}
             </span>
