@@ -9,7 +9,7 @@ const AdminOffers = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const base_url = "http://localhost:5000"; // Replace with your backend URL
+  const base_url = "https://tailor-shop-1.onrender.com"; // Replace with your backend URL
 
   // Fetch all offers
   const fetchOffers = async () => {

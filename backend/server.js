@@ -12,7 +12,22 @@ import transporter from "./config/email.js";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+// ✅ Allowed frontend URL
+const allowedOrigins = [process.env.CLIENT_URL];
+
+// ✅ CORS middleware
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json()); // important
 app.use(express.urlencoded({ extended: true })); // optional
 

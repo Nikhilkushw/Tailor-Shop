@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const API_BASE = `https://tailor-shop-a5mn.onrender.com/api/user`; // backend URL
+const API_BASE = `https://tailor-shop-1.onrender.com/api/user`; // backend URL
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);

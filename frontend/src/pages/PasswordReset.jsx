@@ -13,7 +13,7 @@ const ResetPassword = () => {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
-  const API_URL = "https://tailor-shop-a5mn.onrender.com/api/user";
+  const API_URL = "https://tailor-shop-1.onrender.com/api/user";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
