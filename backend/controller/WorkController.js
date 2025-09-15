@@ -1,14 +1,13 @@
 import Work from "../model/Work.js";
 import cloudinary from "../config/cloudinary.js";
 
-// ✅ Extract Cloudinary public_id from secure_url
 const extractPublicId = (secureUrl) => {
   if (!secureUrl) return null;
   try {
     const parts = secureUrl.split("/upload/");
     if (parts.length < 2) return null;
-    let after = parts[1].replace(/^v\d+\//, ""); // remove version
-    return after.replace(/\.[a-zA-Z0-9]+$/, ""); // remove extension
+    let after = parts[1].replace(/^v\d+\//, "");
+    return after.replace(/\.[a-zA-Z0-9]+$/, "");
   } catch {
     return null;
   }
@@ -27,30 +26,20 @@ export const getAllWorks = async (req, res) => {
 // ✅ Create work
 export const createWork = async (req, res) => {
   try {
-    console.log("📩 Raw Request Body:", req.body);
+    console.log("📩 Request Body:", req.body);
 
     const { type, sampleImage } = req.body;
-    console.log("📩 Parsed type:", type, "sampleImage:", sampleImage);
+    if (!type) return res.status(400).json({ message: "Type is required" });
 
-    if (!type) {
-      console.log("⚠️ Type missing in request");
-      return res.status(400).json({ message: "Type is required" });
-    }
-
-    // ✅ Create new document
     const newWork = new Work({
       type,
-      sampleImage: sampleImage || null,
+      sampleImage: sampleImage || null, // 👈 Cloudinary ka URL aa raha hoga
       items: [],
     });
 
     await newWork.save();
-
-    console.log("✅ Work saved in DB:", newWork);
-
     res.status(201).json(newWork);
   } catch (err) {
-    console.error("❌ Error creating work:", err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -62,9 +51,7 @@ export const updateWork = async (req, res) => {
     if (!work) return res.status(404).json({ message: "Work not found" });
 
     work.type = req.body.type ?? work.type;
-    if (req.body.sampleImage) {
-      work.sampleImage = req.body.sampleImage;
-    }
+    work.sampleImage = req.body.sampleImage ?? work.sampleImage;
 
     await work.save();
     res.json(work);
@@ -79,16 +66,10 @@ export const deleteWork = async (req, res) => {
     const work = await Work.findById(req.params.workId);
     if (!work) return res.status(404).json({ message: "Work not found" });
 
+    // Agar image hai to Cloudinary se bhi delete karna ho
     if (work.sampleImage) {
-      const publicId = extractPublicId(work.sampleImage);
-      if (publicId) await cloudinary.uploader.destroy(publicId);
-    }
-
-    for (let item of work.items) {
-      if (item.image) {
-        const publicId = extractPublicId(item.image);
-        if (publicId) await cloudinary.uploader.destroy(publicId);
-      }
+      const publicId = work.sampleImage.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
     }
 
     await work.deleteOne();
@@ -125,7 +106,7 @@ export const editItem = async (req, res) => {
 
     item.title = req.body.title ?? item.title;
     item.description = req.body.description ?? item.description;
-    if (req.body.image) item.image = req.body.image;
+    item.image = req.body.image ?? item.image;
 
     await work.save();
     res.json(work);
@@ -144,13 +125,11 @@ export const deleteItem = async (req, res) => {
     if (!item) return res.status(404).json({ message: "Item not found" });
 
     if (item.image) {
-      const publicId = extractPublicId(item.image);
-      if (publicId) await cloudinary.uploader.destroy(publicId);
+      const publicId = item.image.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
     }
 
-    work.items = work.items.filter(
-      (i) => i._id.toString() !== req.params.itemId
-    );
+    work.items = work.items.filter((i) => i._id.toString() !== req.params.itemId);
     await work.save();
 
     res.json(work);

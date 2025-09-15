@@ -6,16 +6,18 @@ import {
   deleteWork,
   addItemToWork,
   editItem,
-  deleteItem
+  deleteItem,
 } from "../controller/WorkController.js";
 
 const router = express.Router();
 
+// Work routes
 router.get("/", getAllWorks);
 router.post("/", createWork);
 router.put("/:workId", updateWork);
 router.delete("/:workId", deleteWork);
 
+// Item routes
 router.post("/:workId/items", addItemToWork);
 router.put("/:workId/items/:itemId", editItem);
 router.delete("/:workId/items/:itemId", deleteItem);
