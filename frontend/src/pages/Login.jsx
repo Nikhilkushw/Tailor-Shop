@@ -22,7 +22,7 @@ const AuthPage = () => {
   });
 
   const { login } = useAuth();
-  const API_URL = "https://tailor-shop-a5mn.onrender.com/api/user";
+  const API_URL = "http://localhost:5000/api/user";
 
   // 🔹 Universal input handler
   const handleInputChange = (e, setState) => {

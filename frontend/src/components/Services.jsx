@@ -18,7 +18,7 @@ export default function Services() {
   const getServices = async () => {
     try {
       const response = await axios.get(
-        "https://tailor-shop-a5mn.onrender.com/api/services"
+        "http://localhost:5000/api/services"
       );
       console.log("Services fetched:", response.data);
 

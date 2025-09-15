@@ -10,7 +10,7 @@ const Offers = () => {
   const getOffers = async () => {
     try {
       const response = await axios.get(
-        "https://tailor-shop-a5mn.onrender.com/api/offers"
+        "http://localhost:5000/api/offers"
       );
       console.log("Offers fetched:", response.data);
 
