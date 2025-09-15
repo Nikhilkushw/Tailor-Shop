@@ -23,6 +23,3 @@ A full-stack **Tailor Shop Web Application** built using the **MERN stack**, des
   - **Image Handling:** Multer + Cloud Integration
 
 ---
-
-## 📂 Project Structure
-
