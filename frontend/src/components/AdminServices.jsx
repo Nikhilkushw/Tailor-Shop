@@ -7,7 +7,7 @@ const AdminServices = () => {
   const [editingService, setEditingService] = useState(null);
 
   // 🔹 Base URL (Render / Local)
-  const baseURL = import.meta.env.VITE_API_URL || "https://tailor-shop-a5mn.onrender.com";
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // 🔹 Fetch services
   const fetchServices = async () => {
